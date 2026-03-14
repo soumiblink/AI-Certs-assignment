@@ -14,6 +14,9 @@ class ProductCourseMappingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def get_validators(self):
+        return []
+
     def validate(self, attrs):
         product = attrs.get('product', getattr(self.instance, 'product', None))
         course = attrs.get('course', getattr(self.instance, 'course', None))
@@ -26,7 +29,7 @@ class ProductCourseMappingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This product-course mapping already exists.")
 
         # Enforce only one primary mapping per product
-        if attrs.get('primary_mapping', False):
+        if attrs.get('primary_mapping', getattr(self.instance, 'primary_mapping', False)):
             primary_qs = ProductCourseMapping.objects.filter(product=product, primary_mapping=True)
             if self.instance:
                 primary_qs = primary_qs.exclude(pk=self.instance.pk)

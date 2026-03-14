@@ -14,6 +14,10 @@ class VendorProductMappingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def get_validators(self):
+        # Remove auto-generated unique_together validator — handled manually in validate()
+        return []
+
     def validate(self, attrs):
         vendor = attrs.get('vendor', getattr(self.instance, 'vendor', None))
         product = attrs.get('product', getattr(self.instance, 'product', None))
@@ -26,7 +30,7 @@ class VendorProductMappingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This vendor-product mapping already exists.")
 
         # Enforce only one primary mapping per vendor
-        if attrs.get('primary_mapping', False):
+        if attrs.get('primary_mapping', getattr(self.instance, 'primary_mapping', False)):
             primary_qs = VendorProductMapping.objects.filter(vendor=vendor, primary_mapping=True)
             if self.instance:
                 primary_qs = primary_qs.exclude(pk=self.instance.pk)

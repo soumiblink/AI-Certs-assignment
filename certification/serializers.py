@@ -22,3 +22,9 @@ class CertificationSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError("A certification with this code already exists.")
         return value
+
+    def get_validators(self):
+        validators = super().get_validators()
+        return [v for v in validators if not (
+            hasattr(v, 'field_name') and v.field_name == 'code'
+        )]

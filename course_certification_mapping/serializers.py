@@ -14,6 +14,9 @@ class CourseCertificationMappingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def get_validators(self):
+        return []
+
     def validate(self, attrs):
         course = attrs.get('course', getattr(self.instance, 'course', None))
         certification = attrs.get('certification', getattr(self.instance, 'certification', None))
@@ -26,7 +29,7 @@ class CourseCertificationMappingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This course-certification mapping already exists.")
 
         # Enforce only one primary mapping per course
-        if attrs.get('primary_mapping', False):
+        if attrs.get('primary_mapping', getattr(self.instance, 'primary_mapping', False)):
             primary_qs = CourseCertificationMapping.objects.filter(course=course, primary_mapping=True)
             if self.instance:
                 primary_qs = primary_qs.exclude(pk=self.instance.pk)
