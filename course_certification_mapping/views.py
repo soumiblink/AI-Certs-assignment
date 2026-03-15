@@ -4,19 +4,36 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from core.utils import get_object_or_404_custom, success_response, error_response
+from core.swagger_schemas import (
+    CCM_LIST_RESPONSE, CCM_DETAIL_RESPONSE,
+    ERROR_400, ERROR_404, NO_CONTENT_204,
+)
 from .models import CourseCertificationMapping
 from .serializers import CourseCertificationMappingSerializer
 
-course_id_param = openapi.Parameter('course_id', openapi.IN_QUERY, description="Filter by course ID", type=openapi.TYPE_INTEGER)
-cert_id_param = openapi.Parameter('certification_id', openapi.IN_QUERY, description="Filter by certification ID", type=openapi.TYPE_INTEGER)
+course_id_param = openapi.Parameter(
+    'course_id', openapi.IN_QUERY,
+    description="Filter by course ID",
+    type=openapi.TYPE_INTEGER,
+    required=False,
+)
+cert_id_param = openapi.Parameter(
+    'certification_id', openapi.IN_QUERY,
+    description="Filter by certification ID",
+    type=openapi.TYPE_INTEGER,
+    required=False,
+)
 
 
 class CourseCertificationMappingListCreateView(APIView):
 
     @swagger_auto_schema(
         operation_summary="List course-certification mappings",
+        operation_description="Returns all course-certification mappings. Supports filtering by `course_id` and/or `certification_id`.",
         manual_parameters=[course_id_param, cert_id_param],
-        responses={200: CourseCertificationMappingSerializer(many=True)},
+        responses={
+            200: CCM_LIST_RESPONSE,
+        },
     )
     def get(self, request):
         qs = CourseCertificationMapping.objects.select_related('course', 'certification').all()
@@ -31,8 +48,16 @@ class CourseCertificationMappingListCreateView(APIView):
 
     @swagger_auto_schema(
         operation_summary="Create a course-certification mapping",
+        operation_description=(
+            "Creates a new course-certification mapping. "
+            "Duplicate course+certification pairs are rejected. "
+            "Only one `primary_mapping=true` is allowed per course."
+        ),
         request_body=CourseCertificationMappingSerializer,
-        responses={201: CourseCertificationMappingSerializer},
+        responses={
+            201: CCM_DETAIL_RESPONSE,
+            400: ERROR_400,
+        },
     )
     def post(self, request):
         serializer = CourseCertificationMappingSerializer(data=request.data)
@@ -44,14 +69,30 @@ class CourseCertificationMappingListCreateView(APIView):
 
 class CourseCertificationMappingDetailView(APIView):
 
-    @swagger_auto_schema(operation_summary="Retrieve a course-certification mapping", responses={200: CourseCertificationMappingSerializer})
+    @swagger_auto_schema(
+        operation_summary="Retrieve a course-certification mapping",
+        operation_description="Returns a single course-certification mapping by ID.",
+        responses={
+            200: CCM_DETAIL_RESPONSE,
+            404: ERROR_404,
+        },
+    )
     def get(self, request, pk):
         mapping, err = get_object_or_404_custom(CourseCertificationMapping, pk=pk)
         if err:
             return err
         return success_response(CourseCertificationMappingSerializer(mapping).data)
 
-    @swagger_auto_schema(operation_summary="Update a course-certification mapping", request_body=CourseCertificationMappingSerializer, responses={200: CourseCertificationMappingSerializer})
+    @swagger_auto_schema(
+        operation_summary="Update a course-certification mapping",
+        operation_description="Full update of a course-certification mapping.",
+        request_body=CourseCertificationMappingSerializer,
+        responses={
+            200: CCM_DETAIL_RESPONSE,
+            400: ERROR_400,
+            404: ERROR_404,
+        },
+    )
     def put(self, request, pk):
         mapping, err = get_object_or_404_custom(CourseCertificationMapping, pk=pk)
         if err:
@@ -62,7 +103,16 @@ class CourseCertificationMappingDetailView(APIView):
             return success_response(serializer.data)
         return error_response(serializer.errors)
 
-    @swagger_auto_schema(operation_summary="Partial update a course-certification mapping", request_body=CourseCertificationMappingSerializer, responses={200: CourseCertificationMappingSerializer})
+    @swagger_auto_schema(
+        operation_summary="Partial update a course-certification mapping",
+        operation_description="Partial update — only send fields you want to change.",
+        request_body=CourseCertificationMappingSerializer,
+        responses={
+            200: CCM_DETAIL_RESPONSE,
+            400: ERROR_400,
+            404: ERROR_404,
+        },
+    )
     def patch(self, request, pk):
         mapping, err = get_object_or_404_custom(CourseCertificationMapping, pk=pk)
         if err:
@@ -73,7 +123,14 @@ class CourseCertificationMappingDetailView(APIView):
             return success_response(serializer.data)
         return error_response(serializer.errors)
 
-    @swagger_auto_schema(operation_summary="Delete a course-certification mapping", responses={204: "No Content"})
+    @swagger_auto_schema(
+        operation_summary="Delete a course-certification mapping",
+        operation_description="Deletes a course-certification mapping. Returns 204 with no body.",
+        responses={
+            204: NO_CONTENT_204,
+            404: ERROR_404,
+        },
+    )
     def delete(self, request, pk):
         mapping, err = get_object_or_404_custom(CourseCertificationMapping, pk=pk)
         if err:

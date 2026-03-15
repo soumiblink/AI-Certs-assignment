@@ -1,9 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 from core.utils import get_object_or_404_custom, success_response, error_response
+from core.swagger_schemas import (
+    VENDOR_LIST_RESPONSE, VENDOR_DETAIL_RESPONSE,
+    ERROR_400, ERROR_404, NO_CONTENT_204,
+)
 from .models import Vendor
 from .serializers import VendorSerializer
 
@@ -12,7 +15,10 @@ class VendorListCreateView(APIView):
 
     @swagger_auto_schema(
         operation_summary="List all vendors",
-        responses={200: VendorSerializer(many=True)},
+        operation_description="Returns a list of all vendors.",
+        responses={
+            200: VENDOR_LIST_RESPONSE,
+        },
     )
     def get(self, request):
         vendors = Vendor.objects.all()
@@ -21,8 +27,12 @@ class VendorListCreateView(APIView):
 
     @swagger_auto_schema(
         operation_summary="Create a vendor",
+        operation_description="Creates a new vendor. Code must be unique.",
         request_body=VendorSerializer,
-        responses={201: VendorSerializer},
+        responses={
+            201: VENDOR_DETAIL_RESPONSE,
+            400: ERROR_400,
+        },
     )
     def post(self, request):
         serializer = VendorSerializer(data=request.data)
@@ -34,14 +44,30 @@ class VendorListCreateView(APIView):
 
 class VendorDetailView(APIView):
 
-    @swagger_auto_schema(operation_summary="Retrieve a vendor", responses={200: VendorSerializer})
+    @swagger_auto_schema(
+        operation_summary="Retrieve a vendor",
+        operation_description="Returns a single vendor by ID.",
+        responses={
+            200: VENDOR_DETAIL_RESPONSE,
+            404: ERROR_404,
+        },
+    )
     def get(self, request, pk):
         vendor, err = get_object_or_404_custom(Vendor, pk=pk)
         if err:
             return err
         return success_response(VendorSerializer(vendor).data)
 
-    @swagger_auto_schema(operation_summary="Update a vendor", request_body=VendorSerializer, responses={200: VendorSerializer})
+    @swagger_auto_schema(
+        operation_summary="Update a vendor",
+        operation_description="Full update of a vendor. All fields required.",
+        request_body=VendorSerializer,
+        responses={
+            200: VENDOR_DETAIL_RESPONSE,
+            400: ERROR_400,
+            404: ERROR_404,
+        },
+    )
     def put(self, request, pk):
         vendor, err = get_object_or_404_custom(Vendor, pk=pk)
         if err:
@@ -52,7 +78,16 @@ class VendorDetailView(APIView):
             return success_response(serializer.data)
         return error_response(serializer.errors)
 
-    @swagger_auto_schema(operation_summary="Partial update a vendor", request_body=VendorSerializer, responses={200: VendorSerializer})
+    @swagger_auto_schema(
+        operation_summary="Partial update a vendor",
+        operation_description="Partial update — only send fields you want to change.",
+        request_body=VendorSerializer,
+        responses={
+            200: VENDOR_DETAIL_RESPONSE,
+            400: ERROR_400,
+            404: ERROR_404,
+        },
+    )
     def patch(self, request, pk):
         vendor, err = get_object_or_404_custom(Vendor, pk=pk)
         if err:
@@ -63,7 +98,14 @@ class VendorDetailView(APIView):
             return success_response(serializer.data)
         return error_response(serializer.errors)
 
-    @swagger_auto_schema(operation_summary="Delete a vendor", responses={204: "No Content"})
+    @swagger_auto_schema(
+        operation_summary="Delete a vendor",
+        operation_description="Deletes a vendor. Returns 204 with no body.",
+        responses={
+            204: NO_CONTENT_204,
+            404: ERROR_404,
+        },
+    )
     def delete(self, request, pk):
         vendor, err = get_object_or_404_custom(Vendor, pk=pk)
         if err:
