@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -78,4 +79,4 @@ class CourseCertificationMappingDetailView(APIView):
         if err:
             return err
         mapping.delete()
-        return success_response({"message": "Mapping deleted successfully."}, status_code=204)
+        return Response(status=204)

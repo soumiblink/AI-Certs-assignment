@@ -1,11 +1,11 @@
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from core.utils import get_object_or_404_custom, success_response, error_response
 from .models import VendorProductMapping
 from .serializers import VendorProductMappingSerializer
-from . import services
 
 vendor_id_param = openapi.Parameter('vendor_id', openapi.IN_QUERY, description="Filter by vendor ID", type=openapi.TYPE_INTEGER)
 product_id_param = openapi.Parameter('product_id', openapi.IN_QUERY, description="Filter by product ID", type=openapi.TYPE_INTEGER)
@@ -79,4 +79,4 @@ class VendorProductMappingDetailView(APIView):
         if err:
             return err
         mapping.delete()
-        return success_response({"message": "Mapping deleted successfully."}, status_code=204)
+        return Response(status=204)

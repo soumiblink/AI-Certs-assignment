@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -74,4 +75,4 @@ class CertificationDetailView(APIView):
         if err:
             return err
         cert.delete()
-        return success_response({"message": "Certification deleted successfully."}, status_code=204)
+        return Response(status=204)
