@@ -21,14 +21,14 @@ class ProductCourseMappingSerializer(serializers.ModelSerializer):
         product = attrs.get('product', getattr(self.instance, 'product', None))
         course = attrs.get('course', getattr(self.instance, 'course', None))
 
-        # Prevent duplicate product+course mapping
+        
         qs = ProductCourseMapping.objects.filter(product=product, course=course)
         if self.instance:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
             raise serializers.ValidationError("This product-course mapping already exists.")
 
-        # Enforce only one primary mapping per product
+       
         if attrs.get('primary_mapping', getattr(self.instance, 'primary_mapping', False)):
             primary_qs = ProductCourseMapping.objects.filter(product=product, primary_mapping=True)
             if self.instance:

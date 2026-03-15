@@ -22,24 +22,24 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Root → redirect to Swagger
+    
     path('', RedirectView.as_view(url='/swagger/', permanent=False)),
 
-    # Swagger / ReDoc
+   
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
-    # Master APIs
+    
     path('api/vendors/', include('vendor.urls')),
     path('api/products/', include('product.urls')),
     path('api/courses/', include('course.urls')),
     path('api/certifications/', include('certification.urls')),
 
-    # Mapping APIs
+   
     path('api/vendor-product-mappings/', include('vendor_product_mapping.urls')),
     path('api/product-course-mappings/', include('product_course_mapping.urls')),
     path('api/course-certification-mappings/', include('course_certification_mapping.urls')),
 
-    # Dashboard
+    
     path('api/dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
 ]

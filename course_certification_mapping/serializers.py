@@ -21,14 +21,14 @@ class CourseCertificationMappingSerializer(serializers.ModelSerializer):
         course = attrs.get('course', getattr(self.instance, 'course', None))
         certification = attrs.get('certification', getattr(self.instance, 'certification', None))
 
-        # Prevent duplicate course+certification mapping
+        
         qs = CourseCertificationMapping.objects.filter(course=course, certification=certification)
         if self.instance:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
             raise serializers.ValidationError("This course-certification mapping already exists.")
 
-        # Enforce only one primary mapping per course
+       
         if attrs.get('primary_mapping', getattr(self.instance, 'primary_mapping', False)):
             primary_qs = CourseCertificationMapping.objects.filter(course=course, primary_mapping=True)
             if self.instance:
