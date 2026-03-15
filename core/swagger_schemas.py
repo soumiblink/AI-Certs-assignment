@@ -8,12 +8,12 @@ Reusable drf-yasg schema builders that match the actual API response envelope:
 """
 from drf_yasg import openapi
 
-# ── Primitive building blocks ─────────────────────────────────────────────────
+
 
 SUCCESS_FIELD = openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True)
 SUCCESS_FALSE = openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False)
 
-# ── Error / 404 responses (shared across all modules) ────────────────────────
+
 
 ERROR_400 = openapi.Response(
     description="Validation error",
@@ -46,7 +46,7 @@ ERROR_404 = openapi.Response(
 NO_CONTENT_204 = openapi.Response(description="Deleted successfully — no content returned")
 
 
-# ── Generic schema-wrapper builders ──────────────────────────────────────────
+
 
 def success_list_schema(item_schema: openapi.Schema, description: str = "Success") -> openapi.Response:
     """Wraps an array of items: {"success": true, "data": [...]}"""
@@ -81,7 +81,7 @@ def success_detail_schema(item_schema: openapi.Schema, description: str = "Succe
     )
 
 
-# ── Per-model item schemas ────────────────────────────────────────────────────
+
 
 def _base_master_fields(model_name: str) -> dict:
     return {
@@ -160,7 +160,7 @@ COURSE_CERTIFICATION_MAPPING_SCHEMA = openapi.Schema(
     },
 )
 
-# ── Pre-built response objects used directly in swagger_auto_schema ───────────
+
 
 # Vendor
 VENDOR_LIST_RESPONSE    = success_list_schema(VENDOR_SCHEMA,   "List of vendors")
@@ -215,7 +215,7 @@ FULL_STRUCTURE_SCHEMA = openapi.Schema(
 )
 FULL_STRUCTURE_RESPONSE = success_detail_schema(FULL_STRUCTURE_SCHEMA, "Full vendor structure")
 
-# Dashboard
+
 DASHBOARD_SCHEMA = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={
